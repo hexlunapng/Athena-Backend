@@ -7,15 +7,14 @@ import (
 )
 
 type User struct {
-	ID                 primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-	AccountID          string             `bson:"accountId" json:"accountId"`
-	Username           string             `bson:"username" json:"username"`
-	DiscordID          *string            `bson:"discordId,omitempty" json:"discordId,omitempty"`
-	Email              string             `bson:"email" json:"email"`
-	Password           string             `bson:"password" json:"-"`
-	Created            time.Time          `bson:"created" json:"created"`
-	Banned             bool               `bson:"banned" json:"banned"`
-	LastUsernameChange *time.Time         `bson:"lastUsernameChange,omitempty" json:"lastUsernameChange,omitempty"`
+	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	AccountID string             `bson:"accountId" json:"accountId"`
+	Username  string             `bson:"username" json:"username"`
+	DiscordID *string            `bson:"discordId,omitempty" json:"discordId,omitempty"`
+	Email     string             `bson:"email" json:"email"`
+	Password  string             `bson:"password" json:"-"`
+	Created   time.Time          `bson:"created" json:"created"`
+	Banned    bool               `bson:"banned" json:"banned"`
 }
 
 func UserAccount(accountID, username, email, password string, discordID *string) *User {
