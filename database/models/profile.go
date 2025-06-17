@@ -14,6 +14,10 @@ type Profiles struct {
 	Profiles  map[string]interface{} `bson:"profiles" json:"profiles"`
 }
 
+func (p *Profiles) Save() error {
+	panic("unimplemented")
+}
+
 func UserProfiles(accountID string, profiles map[string]interface{}) *Profiles {
 	return &Profiles{
 		ID:        primitive.NewObjectID(),
