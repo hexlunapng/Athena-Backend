@@ -21,3 +21,7 @@ type user struct {
   Banned bool
   }
 
+
+type TokenResponse struct {
+  AccessToken  string  `json:"access_token"`
+  
