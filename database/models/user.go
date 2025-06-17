@@ -1,9 +1,13 @@
 package models
 
 import (
+	db "Athena-Backend/database"
+	"context"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type User struct {
@@ -28,4 +32,25 @@ func UserAccount(accountID, username, email, password string, discordID *string)
 		Created:   time.Now(),
 		Banned:    false,
 	}
+}
+
+func (u *User) Save() error {
+	collection := db.GetMongoCollection("users")
+	_, err := collection.InsertOne(context.Background(), u)
+	return err
+}
+
+func UserExists(email string) (bool, error) {
+	collection := db.GetMongoCollection("users")
+	filter := bson.M{"email": email}
+
+	var user User
+	err := collection.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }

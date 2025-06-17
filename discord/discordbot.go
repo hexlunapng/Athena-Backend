@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"Athena-Backend/discord/commands"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -18,7 +20,10 @@ func colorizeDiscord(text string) string {
 }
 
 func StartAthenaBackendDiscordBot(token string) (*discordgo.Session, error) {
-	intents := discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentsMessageContent
+	intents := discordgo.IntentsGuildMessages |
+		discordgo.IntentsDirectMessages |
+		discordgo.IntentsMessageContent |
+		discordgo.IntentsGuilds
 
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
@@ -26,14 +31,27 @@ func StartAthenaBackendDiscordBot(token string) (*discordgo.Session, error) {
 	}
 
 	dg.Identify.Intents = intents
+
 	dg.AddHandler(pingPongHandler)
 
+	dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		switch i.ApplicationCommandData().Name {
+		case "register":
+			commands.RegisterCommandHandler(s, i)
+		}
+	})
 	err = dg.Open()
 	if err != nil {
 		return nil, fmt.Errorf("%s Error opening Discord session: %w", colorizeDiscord(discordTag), err)
 	}
 
-	fmt.Println(colorizeDiscord(discordTag), "Bot is now running...")
+	_, err = dg.ApplicationCommandCreate(dg.State.User.ID, "", commands.RegisterCommand)
+	if err != nil {
+		return nil, fmt.Errorf("%s Failed to register /register command: %w", colorizeDiscord(discordTag), err)
+	}
+
+	fmt.Println(colorizeDiscord(discordTag), "Bot is now running with slash commands...")
+
 	return dg, nil
 }
 

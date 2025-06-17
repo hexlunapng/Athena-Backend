@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"os/signal"
 	"strconv"
-	"syscall"
-
-	"github.com/joho/godotenv"
 
 	db "Athena-Backend/database"
 	bot "Athena-Backend/discord"
+	auth "Athena-Backend/routes"
+
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
-func colorize(text string, colorCode string) string {
+func colorize(str string, color string) string {
 	reset := "\033[0m"
-	return colorCode + text + reset
+	return color + str + reset
 }
 
 func main() {
@@ -50,19 +50,16 @@ func main() {
 		fmt.Println("[DISCORD] Bot shut down.")
 	}()
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	router := mux.NewRouter()
+	auth.RegisterAccountRoutes(router)
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Athena Backend Running On Port :3 %d", port)
-	})
+	}).Methods("GET")
+
 	fmt.Printf("%s Starting Athena Backend on %s\n", tag, addr)
 
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		if err := http.ListenAndServe(addr, nil); err != nil {
-			panic(err)
-		}
-	}()
-
-	<-stop
-	fmt.Println("[BACKEND] Shutting down everything.")
+	err = http.ListenAndServe(addr, router)
+	if err != nil {
+		panic(fmt.Sprintf("%s HTTP server error: %v", tag, err))
+	}
 }

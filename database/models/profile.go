@@ -1,7 +1,10 @@
 package models
 
 import (
+	"context"
 	"time"
+
+	db "Athena-Backend/database"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -15,7 +18,9 @@ type Profiles struct {
 }
 
 func (p *Profiles) Save() error {
-	panic("unimplemented")
+	collection := db.GetMongoCollection("profiles")
+	_, err := collection.InsertOne(context.Background(), p)
+	return err
 }
 
 func UserProfiles(accountID string, profiles map[string]interface{}) *Profiles {

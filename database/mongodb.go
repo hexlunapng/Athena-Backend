@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var mongoClient *mongo.Client
+
 const (
 	greenColor = "\033[32m"
 	resetColor = "\033[0m"
@@ -31,8 +33,15 @@ func ConnectMongo(uri string, tag string) (*mongo.Client, error) {
 	if err := client.Ping(ctx, nil); err != nil {
 		return nil, err
 	}
+
+	mongoClient = client
+
 	mongoTag := colorize("[MongoDB]", greenColor)
 	fmt.Printf("%s Connected to MongoDB at %s\n", mongoTag, uri)
 
 	return client, nil
+}
+
+func GetMongoCollection(name string) *mongo.Collection {
+	return mongoClient.Database("athena").Collection(name)
 }
